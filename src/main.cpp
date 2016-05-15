@@ -1,10 +1,16 @@
+#include "OpenGLTextureSink.h"
+
+#include <VisionSystem/OCVCamera/OCVCamera.h>
+
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
+
 #include <stdio.h>
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
 #include <opencv2/opencv.hpp>
+
 
 static void error_callback(int error, const char* description)
 {
@@ -13,6 +19,8 @@ static void error_callback(int error, const char* description)
 
 int main(int, char**)
 {
+    hellbender::vs::OCVCamera ocvcam(0);
+    OpenGLTextureSink oglTextureSink;
     // Setup window
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -29,49 +37,62 @@ int main(int, char**)
 
     // Setup ImGui binding
     ImGui_ImplGlfwGL3_Init(window, true);
+    oglTextureSink.generateTexture();
+    oglTextureSink.connectTo(&ocvcam);
 
     ImVec4 clear_color = ImColor(30, 30, 30);
 
-    GLuint cameraImage;
-    cv::VideoCapture vc(0);
-    cv::Mat image;
-    vc >> image;
-    //    cv::flip(image, image, 0);
-    glGenTextures(1, &cameraImage);
-    glBindTexture(GL_TEXTURE_2D, cameraImage);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D,
-                 0,
-                 GL_RGB,
-                 image.cols,
-                 image.rows,
-                 0,
-                 GL_BGR,
-                 GL_UNSIGNED_BYTE,
-                 image.ptr());
-
-    // Main loop
+    cv::Mat r_hist, b_hist, g_hist;
+    cv::Mat lastImage;
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         ImGui_ImplGlfwGL3_NewFrame();
 
         {
-            static float f = 0.0f;
-            ImGui::Text("Hello, world!");
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);
-            ImGui::ColorEdit3("clear color", (float*)&clear_color);
+            //            oglTextureSink.updateTexture();
+
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Separator();
+
+            int histSize = 256;
+            float range[] = { 0, 256 } ;
+            const float* histRange = { range };
+
+            lastImage = oglTextureSink.getLastImage();
+            std::vector<cv::Mat> bgr_planes;
+            cv::split(lastImage, bgr_planes);
+
+            cv::calcHist( &bgr_planes[0], 1, 0, cv::Mat(), b_hist, 1, &histSize, &histRange, true, false);
+            cv::calcHist( &bgr_planes[1], 1, 0, cv::Mat(), g_hist, 1, &histSize, &histRange, true, false);
+            cv::calcHist( &bgr_planes[2], 1, 0, cv::Mat(), r_hist, 1, &histSize, &histRange, true, false);
+
+            cv::normalize(b_hist, b_hist, 0, 1.0, cv::NORM_MINMAX, -1, cv::Mat());
+            cv::normalize(g_hist, g_hist, 0, 1.0, cv::NORM_MINMAX, -1, cv::Mat());
+            cv::normalize(r_hist, r_hist, 0, 1.0, cv::NORM_MINMAX, -1, cv::Mat());
+
+            float* blueData = (float*)b_hist.data;
+            float* greenData = (float*)g_hist.data;
+            float* redData = (float*)r_hist.data;
+            ImGui::PlotHistogram("Blue Channel", blueData, b_hist.rows, 0, NULL, 0.0f, 1.0f, ImVec2(0,80));
+            ImGui::PlotHistogram("Green Channel", greenData, g_hist.rows, 0, NULL, 0.0f, 1.0f, ImVec2(0,80));
+            ImGui::PlotHistogram("Red Channel", redData, r_hist.rows, 0, NULL, 0.0f, 1.0f, ImVec2(0,80));
         }
 
-        // 2. Show another simple window, this time using an explicit Begin/End pair
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Image Source");
-        ImGui::Text("Hello there...");
-        ImGui::Image((void*)cameraImage, ImVec2(100, 100));
+        ImGui::Text("%dpx x %dpx", lastImage.cols, lastImage.rows);
+        ImGui::Separator();
+        oglTextureSink.draw();
+        ImGui::Separator();
+        if(ImGui::Button("Pause")) {
+            if(ocvcam.isGrabbing()) {
+                ocvcam.stop();
+            } else {
+                ocvcam.start();
+            }
+        }
         ImGui::End();
 
         // Rendering
