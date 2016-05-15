@@ -34,8 +34,7 @@ endif()
 add_definitions(-std=c++11)
 
 set(HELLBENDER_LIB_DIR ${CMAKE_SOURCE_DIR}/../HellBender/build/lib/)
-#set(HELLBENDER_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../HellBender/build/include/)
-set(HELLBENDER_INCLUDE_DIR /home/wose/projects/HellBender/build/include/hb)
+set(HELLBENDER_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/../HellBender/build/include/hb)
 
 include_directories(${HELLBENDER_INCLUDE_DIR})
 

@@ -57,6 +57,11 @@ public:
         }
     }
 
+    long getCurrentImageID() const
+    {
+        return lastImageID_;
+    }
+
     void draw()
     {
         updateTexture();
@@ -72,16 +77,29 @@ private:
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
+            // TODO use FBOs
             std::lock_guard<std::mutex> lock(imageMutex_);
-            glTexImage2D(GL_TEXTURE_2D,
-                         0,
-                         GL_RGB,
-                         image_.cols,
-                         image_.rows,
-                         0,
-                         GL_BGR,
-                         GL_UNSIGNED_BYTE,
-                         image_.ptr());
+            if(lastImageID_ > 0) {
+                glTexSubImage2D(GL_TEXTURE_2D,
+                             0,
+                             0,
+                             0,
+                             image_.cols,
+                             image_.rows,
+                             GL_BGR,
+                             GL_UNSIGNED_BYTE,
+                             image_.ptr());
+            } else {
+                glTexImage2D(GL_TEXTURE_2D,
+                             0,
+                             GL_RGB,
+                             image_.cols,
+                             image_.rows,
+                             0,
+                             GL_BGR,
+                             GL_UNSIGNED_BYTE,
+                             image_.ptr());
+            }
             lastImageID_ = imageID_;
         }
     }

@@ -83,6 +83,8 @@ int main(int, char**)
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Image Source");
         ImGui::Text("%dpx x %dpx", lastImage.cols, lastImage.rows);
+        ImGui::SameLine();
+        ImGui::Text("ID: %ld", oglTextureSink.getCurrentImageID());
         ImGui::Separator();
         oglTextureSink.draw();
         ImGui::Separator();
