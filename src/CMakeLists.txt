@@ -11,6 +11,7 @@ set(hbvisiongrapheditor_HDR
   )
 
 find_package(OpenGL REQUIRED)
+find_package(OpenCV REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/imgui/)
 include_directories(${CMAKE_SOURCE_DIR}/3rdparty/imgui/examples/libs/gl3w)
@@ -18,4 +19,6 @@ include_directories(${CMAKE_SOURCE_DIR}/3rdparty/imgui/examples/libs/gl3w)
 add_definitions(-DIMGUI_DISABLE_TEST_WINDOWS)
 
 add_executable(hbvisiongrapheditor ${hbvisiongrapheditor_SRC})
-target_link_libraries(hbvisiongrapheditor ${OPENGL_LIBRARIES} glfw dl)
+target_link_libraries(hbvisiongrapheditor ${OPENGL_LIBRARIES} ${OpenCV_LIBS} glfw dl)
+
+configure_file(Lenna.png ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Lenna.png COPYONLY)

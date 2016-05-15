@@ -4,6 +4,8 @@
 #include <GL/gl3w.h>
 #include <GLFW/glfw3.h>
 
+#include <opencv2/opencv.hpp>
+
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error %d: %s\n", error, description);
@@ -30,6 +32,27 @@ int main(int, char**)
 
     ImVec4 clear_color = ImColor(30, 30, 30);
 
+    GLuint cameraImage;
+    cv::VideoCapture vc(0);
+    cv::Mat image;
+    vc >> image;
+    //    cv::flip(image, image, 0);
+    glGenTextures(1, &cameraImage);
+    glBindTexture(GL_TEXTURE_2D, cameraImage);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glTexImage2D(GL_TEXTURE_2D,
+                 0,
+                 GL_RGB,
+                 image.cols,
+                 image.rows,
+                 0,
+                 GL_BGR,
+                 GL_UNSIGNED_BYTE,
+                 image.ptr());
+
     // Main loop
     while (!glfwWindowShouldClose(window))
     {
@@ -47,7 +70,8 @@ int main(int, char**)
         // 2. Show another simple window, this time using an explicit Begin/End pair
         ImGui::SetNextWindowSize(ImVec2(200,100), ImGuiSetCond_FirstUseEver);
         ImGui::Begin("Image Source");
-        ImGui::Text("Hello");
+        ImGui::Text("Hello there...");
+        ImGui::Image((void*)cameraImage, ImVec2(100, 100));
         ImGui::End();
 
         // Rendering
