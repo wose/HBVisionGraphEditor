@@ -1,13 +1,19 @@
 set(hbvisiongrapheditor_SRC
   main.cpp
+  Node.cpp
+  NodeGraph.cpp
+  OCVCameraNode.cpp
+  OpenGLTextureSink.cpp
   imgui_impl_glfw_gl3.cpp
   ../3rdparty/imgui/examples/libs/gl3w/GL/gl3w.c
-  ../3rdparty/imgui/imgui_demo.cpp
   ../3rdparty/imgui/imgui_draw.cpp
   ../3rdparty/imgui/imgui.cpp
   )
 
 set(hbvisiongrapheditor_HDR
+  Node.h
+  NodeGraph.h
+  OCVCameraNode.h
   OpenGLTextureSink.h
   )
 
