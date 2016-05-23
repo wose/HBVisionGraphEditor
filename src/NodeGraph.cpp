@@ -37,16 +37,21 @@ void NodeGraph::draw()
 
     ImGui::PushItemWidth(192.0f);
     ImVec2 offset = ImGui::GetCursorScreenPos() - scrollPosition_;
+    int selectedNode = -1;
+    int hoveredNode = -1;
 
     for(auto& node : nodes_) {
-        node->draw(offset);
+        node->draw(offset, selectedNode, hoveredNode);
+    }
+
+    if(ImGui::BeginPopupContextItem("NodeContextMenu")) {
+        ImGui::MenuItem("Delete");
+        ImGui::EndPopup();
     }
 
     // Scrolling
-    if(ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() && ImGui::IsMouseDragging(2, 0.0f))
-    {
-        scrollPosition_.x -= ImGui::GetIO().MouseDelta.x;
-        scrollPosition_.y -= ImGui::GetIO().MouseDelta.y;
+    if(ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() && ImGui::IsMouseDragging(2, 0.0f)) {
+        scrollPosition_ = scrollPosition_ - ImGui::GetIO().MouseDelta;
     }
 
     ImGui::PopItemWidth();
@@ -55,10 +60,14 @@ void NodeGraph::draw()
     ImGui::PopStyleVar(2);
 
     if(ImGui::BeginPopupContextItem("Context Node Menu")) {
+        //if(selectedNode >= 0 && ImGui::MenuItem("Delete Node")) {
+        //}
+
+        ImGui::Separator();
+        ImGui::MenuItem("Nodes", nullptr, false, false);
         if(ImGui::MenuItem("OpenCV Camera")) {
             addNode("OCVCamera");
         }
-        ImGui::Separator();
         ImGui::MenuItem("Dummy");
         ImGui::EndPopup();
     }
@@ -71,7 +80,7 @@ void NodeGraph::draw()
 void NodeGraph::addNode(const std::string& nodeType)
 {
     if(nodeType == "OCVCamera") {
-        std::unique_ptr<Node> node(new OCVCameraNode);
+        std::unique_ptr<Node> node(new OCVCameraNode(ImGui::GetIO().MousePos + scrollPosition_ - ImVec2(100,50)));
         nodes_.emplace_back(std::move(node));
     } else {
     }

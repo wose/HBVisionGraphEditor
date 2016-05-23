@@ -7,6 +7,7 @@
 
 #include "Node.h"
 #include "OpenGLTextureSink.h"
+#include "imgui.h"
 
 #include "VisionSystem/OCVCamera/OCVCamera.h"
 
@@ -15,8 +16,8 @@
 class OCVCameraNode : public Node
 {
 public:
-    OCVCameraNode();
-    OCVCameraNode(std::shared_ptr<hellbender::vs::OCVCamera> cam);
+    OCVCameraNode(ImVec2 position);
+    OCVCameraNode(ImVec2 position, std::shared_ptr<hellbender::vs::OCVCamera> cam);
 
     void setCamera(std::shared_ptr<hellbender::vs::OCVCamera> cam);
     virtual void drawNodeContent() override;
@@ -24,8 +25,8 @@ public:
 private:
     char videoFile_[256];
     char imageDirectory_[256];
-    int sourceType_;
-    int cameraID_;
+    int sourceType_ = 0;
+    int cameraID_ = 0;
     cv::Mat lastImage_;
     std::shared_ptr<hellbender::vs::OCVCamera> cam_;
     OpenGLTextureSink oglTextureSink;

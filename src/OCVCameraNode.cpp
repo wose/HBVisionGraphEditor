@@ -6,14 +6,16 @@
 
 #include <VisionSystem/VSCore/ImageSinkBase.h>
 #include <VisionSystem/OCVCamera/OCVCamera.h>
-#include <imgui.h>
+#include "imgui.h"
 
-OCVCameraNode::OCVCameraNode()
+OCVCameraNode::OCVCameraNode(ImVec2 position) :
+    Node(position, 0, 0, 1, 0)
 {
     oglTextureSink.generateTexture();
 }
 
-OCVCameraNode::OCVCameraNode(std::shared_ptr<hellbender::vs::OCVCamera> cam) :
+OCVCameraNode::OCVCameraNode(ImVec2 position, std::shared_ptr<hellbender::vs::OCVCamera> cam) :
+    Node(position, 0, 0, 1, 0),
     cam_(cam)
 {
     oglTextureSink.connectTo(cam_.get());
