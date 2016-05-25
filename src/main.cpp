@@ -107,10 +107,12 @@ int main(int, char**)
 
             {
                 if(showDebug) {
+                    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.05f, 0.05f, 0.05f, 0.5f));
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
                     ImGui::SetNextWindowPos(ImVec2(0,0));
                     ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x,ImGui::GetIO().DisplaySize.y / 2 ));
 
-                    ImGui::Begin("Debug Console", &showDebug, ImVec2(0,0), 0.5f,
+                    ImGui::Begin("Debug Console", &showDebug, ImVec2(0,0), 0.8f,
                                  ImGuiWindowFlags_NoTitleBar
                                  |ImGuiWindowFlags_NoResize
                                  |ImGuiWindowFlags_NoMove
@@ -144,6 +146,8 @@ int main(int, char**)
                         ImGui::PlotHistogram("Red Channel", redData, r_hist.rows, 0, NULL, 0.0f, 1.0f, ImVec2(0,80));
                     */
                     ImGui::End();
+                    ImGui::PopStyleVar();
+                    ImGui::PopStyleColor();
                 }
             }
 
