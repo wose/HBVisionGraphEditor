@@ -18,7 +18,7 @@ OCVCameraNode::OCVCameraNode(ImVec2 position, std::shared_ptr<hellbender::vs::OC
     Node(position, 0, 0, 1, 0),
     cam_(cam)
 {
-    oglTextureSink.connectTo(cam_.get());
+    oglTextureSink.connectTo(cam_);
     oglTextureSink.generateTexture();
 }
 
@@ -26,7 +26,7 @@ void OCVCameraNode::setCamera(std::shared_ptr<hellbender::vs::OCVCamera> cam)
 {
     cam_ = cam;
 
-    oglTextureSink.connectTo(cam_.get());
+    oglTextureSink.connectTo(cam_);
     oglTextureSink.generateTexture();
 }
 
@@ -36,15 +36,15 @@ void OCVCameraNode::drawNodeContent()
 
     ImGui::Combo("Source Type", &sourceType_, "Camera\0Video File\0Image Folder\0");
     switch (sourceType_) {
-    case 0:
-        ImGui::SliderInt("Camera", &cameraID_, 0, 4);
-        break;
-    case 1:
-        ImGui::InputText("File", videoFile_, 256);
-        break;
-    case 2:
-        ImGui::InputText("Directory", imageDirectory_, 256);
-        break;
+        case 0:
+            ImGui::SliderInt("Camera", &cameraID_, 0, 4);
+            break;
+        case 1:
+            ImGui::InputText("File", videoFile_, 256);
+            break;
+        case 2:
+            ImGui::InputText("Directory", imageDirectory_, 256);
+            break;
     }
 
     if(cam_) {
@@ -57,8 +57,9 @@ void OCVCameraNode::drawNodeContent()
                 oglTextureSink.disconnect();
             }
 
+            cam_.reset();
             cam_ = std::make_shared<hellbender::vs::OCVCamera>(cameraID_);
-            oglTextureSink.connectTo(cam_.get());
+            oglTextureSink.connectTo(cam_);
         }
     }
 
